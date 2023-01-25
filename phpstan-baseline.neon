@@ -1,0 +1,81 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Conditional return type uses subject type TCacheValue which is not part of PHPDoc @template tags\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:addToIndex\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:addToIndexOnSuccess\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:deleteFromIndex\\(\\) has parameter \\$key with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:getIndex\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:keys\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:many\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:many\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:prefixKeys\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:prefixKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:prefixKeysAssoc\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:prefixKeysAssoc\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:pull\\(\\) has parameter \\$key with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:put\\(\\) has parameter \\$key with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:putMany\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$index has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
