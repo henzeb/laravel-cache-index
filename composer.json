@@ -1,0 +1,57 @@
+{
+    "name": "henzeb/laravel-cache-index",
+    "description": "Flexible replacement for tags",
+    "keywords": [
+        "henzeb",
+        "laravel",
+        "index",
+        "cache"
+    ],
+    "homepage": "https://github.com/henzeb/laravel-console-facade",
+    "license": "AGPL-3.0-only",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Henze Berkheij",
+            "email": "henzeberkheij@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "illuminate/support": "^8.46|^9.0"
+    },
+    "require-dev": {
+        "nesbot/carbon": "v2.64.0",
+        "nunomaduro/larastan": "^1|^2.3",
+        "orchestra/testbench": "^v6.25.1|^7.0",
+        "phpstan/phpstan": "^1.4",
+        "phpunit/phpunit": "^9.5.27"
+    },
+    "autoload": {
+        "psr-4": {
+            "Henzeb\\CacheIndex\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Henzeb\\CacheIndex\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage-txt": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-text",
+        "test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html coverage",
+        "test-dox": "vendor/bin/phpunit --testdox"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Henzeb\\CacheIndex\\Providers\\CacheIndexServiceProvider"
+            ]
+        }
+    }
+}
