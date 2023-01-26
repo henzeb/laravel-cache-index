@@ -6,6 +6,9 @@ use Illuminate\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
 use Henzeb\CacheIndex\Concerns\ManagesIndex;
 
+use function array_keys;
+use function method_exists;
+
 class IndexRepository extends Repository
 {
     use ManagesIndex;
@@ -22,7 +25,14 @@ class IndexRepository extends Repository
 
     public function many(array $keys): array
     {
-        return parent::many($this->prefixKeys($keys));
+        $results = $this->unprefixKeysAssoc(
+            parent::many($this->prefixKeysAssoc($keys))
+        );
+
+
+        return collect($results)
+            ->mapWithKeys(fn($value, $key) => [$key => $value])
+            ->toArray();
     }
 
     public function pull($key, $default = null): mixed
@@ -35,7 +45,7 @@ class IndexRepository extends Repository
 
     public function add($key, $value, $ttl = null): bool
     {
-        if (\method_exists($this->store, 'add')) {
+        if (method_exists($this->store, 'add')) {
             return $this->addToIndexOnSuccess(
                 parent::add($key, $value, $ttl),
                 $key
