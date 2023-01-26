@@ -7,6 +7,7 @@ use DateTimeInterface;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
 use function array_map;
+use function array_values;
 use function array_combine;
 use function substr_replace;
 use function str_starts_with;
@@ -140,10 +141,24 @@ trait ManagesIndex
         return array_map(fn($key) => $this->itemKey($key), $keys);
     }
 
-    private function prefixKeysAssoc(array $keys): array
+    private function unprefixKeys(array $keys): array
+    {
+        return array_map(fn($key) => $this->unprefixedItemKey($key), $keys);
+    }
+
+    private function prefixKeysAssoc(array $assocArray): array
+    {
+        $keys = collect($assocArray)->map(function ($value, $key) {
+            return is_string($key) ? $key : $value;
+        })->values()->all();
+
+        return array_combine($this->prefixKeys($keys), array_values($assocArray));
+    }
+
+    private function unprefixKeysAssoc(array $keys): array
     {
         return array_combine(
-            $this->prefixKeys(array_keys($keys)),
+            $this->unprefixKeys(array_keys($keys)),
             array_values($keys)
         );
     }
