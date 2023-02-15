@@ -19,14 +19,14 @@
     ],
     "require": {
         "php": "^8.0",
-        "illuminate/support": "^8.46|^9.0"
+        "illuminate/support": "^9.0|^10.0"
     },
     "require-dev": {
         "nesbot/carbon": "v2.64.0",
         "nunomaduro/larastan": "^1|^2.3",
-        "orchestra/testbench": "^v6.25.1|^7.0",
+        "orchestra/testbench": "^7.0|^8.0",
         "phpstan/phpstan": "^1.4",
-        "phpunit/phpunit": "^9.5.27"
+        "phpunit/phpunit": "^9.6.3"
     },
     "autoload": {
         "psr-4": {
