@@ -91,7 +91,29 @@ Cache::index('myIndex')->move('myKey', 'targetIndex', 10);
 ````
 
 Note: Be aware that either copy and move do nothing with the TTL. It creates
-a new copy of the cached item with a new TTL.
+a new copy of the cached item with a new TTL if given.
+
+### pop
+
+Just like with arrays, takes and removes the last indexed key and returns the value
+associated with that index.
+
+### shift
+
+Just like with arrays, takes and removes the first indexed key and returns the value
+associated with that index.
+
+### random
+
+returns a random value.
+
+### randomKey
+
+returns a random key.
+
+### pullRandom
+
+Returns a random value and pulls it from the cache.
 
 ### syncTtl
 

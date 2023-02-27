@@ -5,12 +5,11 @@ namespace Henzeb\CacheIndex\Concerns;
 use DateInterval;
 use DateTimeInterface;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
-
+use function array_combine;
 use function array_map;
 use function array_values;
-use function array_combine;
-use function substr_replace;
 use function str_starts_with;
+use function substr_replace;
 
 trait ManagesIndex
 {
@@ -49,20 +48,16 @@ trait ManagesIndex
         return IndexRepository::INDEX_PREFIX . ($name ?? $this->index);
     }
 
-    public function addToIndexOnSuccess(
-        mixed $success,
-        string|array $keys
-    ): bool {
+    public function addToIndexOnSuccess(mixed $success, string|array $keys): bool
+    {
         if ($success) {
             $this->addToIndex($keys);
         }
         return (bool)$success;
     }
 
-    private function addToIndex(
-        string|array $keys,
-        string $targetIndex = null
-    ): void {
+    private function addToIndex(string|array $keys, string $targetIndex = null): void
+    {
         $index = $this->getIndex($targetIndex);
 
         $keys = is_array($keys) ? $keys : [$keys];
@@ -80,11 +75,53 @@ trait ManagesIndex
         );
     }
 
-    public function move(
-        string $key,
-        string $targetIndex,
-        DateTimeInterface|DateInterval|int|null $ttl = null
-    ): bool {
+    public function pop(): mixed
+    {
+        $keys = $this->keys();
+        $key = array_pop($keys);
+
+        if ($key) {
+            return $this->pull($key);
+        }
+
+        return null;
+    }
+
+    public function shift(): mixed
+    {
+        $keys = $this->keys();
+        $key = array_shift($keys);
+
+        if ($key) {
+            return $this->pull($key);
+        }
+
+        return null;
+    }
+
+    public function randomKey(): ?string
+    {
+        $keys = $this->keys();
+
+        if (empty($keys)) {
+            return null;
+        }
+
+        return $keys[array_rand($keys)];
+    }
+
+    public function random(): mixed
+    {
+        return $this->get($this->randomKey());
+    }
+
+    public function pullRandom(): mixed
+    {
+        return $this->pull($this->randomKey());
+    }
+
+    public function move(string $key, string $targetIndex, DateTimeInterface|DateInterval|int|null $ttl = null): bool
+    {
         if ($this->missing($key)) {
             return false;
         }
@@ -98,11 +135,8 @@ trait ManagesIndex
         return true;
     }
 
-    public function copy(
-        string $key,
-        string $targetIndex,
-        DateTimeInterface|DateInterval|int|null $ttl = null
-    ): bool {
+    public function copy(string $key, string $targetIndex, DateTimeInterface|DateInterval|int|null $ttl = null): bool
+    {
         if ($this->missing($key)) {
             return false;
         }
@@ -122,9 +156,8 @@ trait ManagesIndex
         );
     }
 
-    public function syncTtl(
-        DateTimeInterface|DateInterval|int|null $ttl = null
-    ): bool {
+    public function syncTtl(DateTimeInterface|DateInterval|int|null $ttl = null): bool
+    {
         $keys = $this->keys();
 
         return $this->putMany($this->many($keys), $ttl);
@@ -189,12 +222,21 @@ trait ManagesIndex
         return $key;
     }
 
-    private function deleteFromIndex(string|array $key): void
+    private function deleteFromIndex(string|array|null $key): void
     {
+        if (null === $key) {
+            return;
+        }
+        
         $index = $this->getIndex();
 
         foreach (is_array($key) ? $key : [$key] as $key) {
             unset($index[$key]);
+        }
+
+        if (empty($index)) {
+            $this->getStore()->forget($this->indexName());
+            return;
         }
 
         $this->getStore()->forever(

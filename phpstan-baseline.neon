@@ -1,6 +1,11 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^PHPDoc tag @var with type Illuminate\\\\Cache\\\\CacheManager is not subtype of native type \\$this\\(Henzeb\\\\CacheIndex\\\\Mixins\\\\IndexMixin\\)\\.$#"
+			count: 1
+			path: src/Mixins/IndexMixin.php
+
+		-
 			message: "#^Conditional return type uses subject type TCacheValue which is not part of PHPDoc @template tags\\.$#"
 			count: 1
 			path: src/Repositories/IndexRepository.php
@@ -51,7 +56,7 @@ parameters:
 			path: src/Repositories/IndexRepository.php
 
 		-
-			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:prefixKeysAssoc\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:prefixKeysAssoc\\(\\) has parameter \\$assocArray with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Repositories/IndexRepository.php
 
@@ -72,6 +77,26 @@ parameters:
 
 		-
 			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:putMany\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:unprefixKeys\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:unprefixKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:unprefixKeysAssoc\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Repositories/IndexRepository.php
+
+		-
+			message: "#^Method Henzeb\\\\CacheIndex\\\\Repositories\\\\IndexRepository\\:\\:unprefixKeysAssoc\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Repositories/IndexRepository.php
 
