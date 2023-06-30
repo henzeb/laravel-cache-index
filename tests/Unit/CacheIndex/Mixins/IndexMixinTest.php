@@ -3,13 +3,14 @@
 namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Mixins;
 
 use Closure;
-use Illuminate\Cache\FileStore;
-use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Contracts\Cache\Store;
-use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Henzeb\CacheIndex\Providers\CacheIndexServiceProvider;
+use Henzeb\CacheIndex\Repositories\IndexRepository;
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\FileStore;
+use Illuminate\Contracts\Cache\Store;
+use Illuminate\Support\Facades\Cache;
+use Orchestra\Testbench\TestCase;
+use Stringable;
 
 class IndexMixinTest extends TestCase
 {
@@ -77,6 +78,33 @@ class IndexMixinTest extends TestCase
         $this->assertInstanceOf(
             FileStore::class,
             $this->getIndexStore(Cache::driver('file')->index('myIndex'))
+        );
+    }
+
+    public function testAllowArrayAsIndex(): void
+    {
+        $stringable = new class implements Stringable {
+            public function __toString(): string
+            {
+                return 'stringable';
+            }
+        };
+
+        $withName = new class {
+            public string $name = 'withName';
+        };
+
+        $repository = Cache::index(['test', $stringable, $withName, $this]);
+
+        $this->assertEquals(
+            'test.stringable.withName.' . $this::class,
+            Closure::bind(
+                function () {
+                    return $this->index;
+                },
+                $repository,
+                IndexRepository::class
+            )()
         );
     }
 

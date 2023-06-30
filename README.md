@@ -48,13 +48,26 @@ Cache::index('myIndex')->flush(); // only flushes keys in index
 
 ````
 
+### index name
+
+The index name can, next to a regular string, also be applied as an array.
+This is handy when you have an index based on variables.
+
+````php
+Cache::index(['myIndex', 'Read', 'Write']); // uses index name `myIndex.Read.Write`
+Cache::index(['myIndex', ActionEnum::Read]); // uses index name `myIndex.Read`
+Cache::index(['myIndex', new StdClass()]); // uses index name `myIndex.StdClass`
+Cache::index(['myIndex', new StringableClass('stringed')]); // uses index name `myIndex.stringed`
+
+````
+
 ### Keys
 
 Retrieving a list of keys is very easy.
 
 ````php
 Cache::index('myIndex')->keys(); // returns ['test', 'put']
-Cache::driver('file')->index()->keys('myIndex'); // returns ['filed']
+Cache::driver('file')->index('myIndex')->keys(); // returns ['filed']
 ````
 
 ### Count

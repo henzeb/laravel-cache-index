@@ -227,7 +227,7 @@ trait ManagesIndex
         if (null === $key) {
             return;
         }
-        
+
         $index = $this->getIndex();
 
         foreach (is_array($key) ? $key : [$key] as $key) {
