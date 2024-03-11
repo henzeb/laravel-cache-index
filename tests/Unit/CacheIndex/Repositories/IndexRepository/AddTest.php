@@ -3,9 +3,9 @@
 namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
 
 use Carbon\Carbon;
+use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
 use Orchestra\Testbench\TestCase;
-use Henzeb\CacheIndex\Repositories\IndexRepository;
 
 class AddTest extends TestCase
 {
@@ -33,7 +33,7 @@ class AddTest extends TestCase
 
     public function testAddAgain(): void
     {
-        Carbon::setTestNow(now());
+        Carbon::setTestNow('2024-01-01 00:00:00');
 
         $mock = new ArrayStore();
 

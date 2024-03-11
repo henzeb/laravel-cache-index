@@ -3,8 +3,9 @@
 namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
 
 use Closure;
-use Illuminate\Cache\ArrayStore;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
+use Illuminate\Cache\ArrayStore;
+use function now;
 
 trait Helpers
 {
@@ -59,10 +60,10 @@ trait Helpers
         $store = $repo->getStore();
 
         if ($ttl > 0) {
-            $ttl = now()->addSeconds($ttl)->unix();
+            $ttl = now()->addSeconds($ttl)->unix() . '.' . now()->addSeconds($ttl)->millisecond;
         }
 
-        $this->assertEquals((int)$ttl, $this->getRawStore($store)[$key]['expiresAt']);
+        $this->assertEquals($ttl, $this->getRawStore($store)[$key]['expiresAt']);
     }
 
 

@@ -2,9 +2,9 @@
 
 namespace Henzeb\CacheIndex\Providers;
 
+use Henzeb\CacheIndex\Mixins\IndexMixin;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
-use Henzeb\CacheIndex\Mixins\IndexMixin;
 
 class CacheIndexServiceProvider extends ServiceProvider
 {
@@ -14,6 +14,13 @@ class CacheIndexServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Cache::mixin(new IndexMixin());
+        $facadeRoot = (fn() => Cache::getFacadeAccessor())->bindTo(null, Cache::class)();
+        $this->callAfterResolving(
+            $facadeRoot,
+            function () {
+                Cache::mixin(new IndexMixin());
+            }
+        );
+
     }
 }

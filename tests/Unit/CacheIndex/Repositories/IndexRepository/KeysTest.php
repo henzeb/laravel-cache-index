@@ -3,9 +3,9 @@
 namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
 
 use Carbon\Carbon;
+use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
 use Orchestra\Testbench\TestCase;
-use Henzeb\CacheIndex\Repositories\IndexRepository;
 
 class KeysTest extends TestCase
 {
@@ -20,7 +20,7 @@ class KeysTest extends TestCase
             'array'
         );
 
-        Carbon::setTestNow();
+        Carbon::setTestNow('2024-01-01 00:00:00');
 
         $repo->add('myKey', 'value');
 
@@ -35,7 +35,7 @@ class KeysTest extends TestCase
         );
 
         Carbon::setTestNow(
-            now()->addSeconds(10)
+            now()->addSeconds(9)
         );
 
         $this->assertEquals(
@@ -52,7 +52,7 @@ class KeysTest extends TestCase
         );
 
         Carbon::setTestNow(
-            now()->addSeconds(11)
+            now()->addSeconds(10)
         );
 
         $this->assertEquals(

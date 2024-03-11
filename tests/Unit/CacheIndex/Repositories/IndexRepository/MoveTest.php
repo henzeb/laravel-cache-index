@@ -3,10 +3,9 @@
 namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
 
 use Carbon\Carbon;
+use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
 use Orchestra\Testbench\TestCase;
-use Illuminate\Support\Facades\Cache;
-use Henzeb\CacheIndex\Repositories\IndexRepository;
 
 class MoveTest extends TestCase
 {
@@ -94,7 +93,7 @@ class MoveTest extends TestCase
 
     public function testExpectMovesWithExpiration(): void
     {
-        Carbon::setTestNow(now());
+        Carbon::setTestNow('2024-01-01 00:00:00');
 
         $store = new ArrayStore();
 

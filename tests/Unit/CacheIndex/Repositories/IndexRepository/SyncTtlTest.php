@@ -3,9 +3,10 @@
 namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
 
 use Carbon\Carbon;
+use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
 use Orchestra\Testbench\TestCase;
-use Henzeb\CacheIndex\Repositories\IndexRepository;
+use function now;
 
 class SyncTtlTest extends TestCase
 {
@@ -13,7 +14,7 @@ class SyncTtlTest extends TestCase
 
     public function testSyncTtl(): void
     {
-        Carbon::setTestNow(now());
+        Carbon::setTestNow('2024-01-01 00:00:00');
 
         $arrayStore = new ArrayStore();
         $repo = new IndexRepository(
@@ -27,7 +28,7 @@ class SyncTtlTest extends TestCase
 
         $repo->syncTtl(20);
 
-        $seconds = now()->addSeconds(20)->unix();
+        $seconds = now()->addSeconds(20)->timestamp . '.' . now()->addSeconds(20)->millisecond;
 
         $this->assertEquals(
             [
