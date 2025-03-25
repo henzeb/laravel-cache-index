@@ -1,49 +1,36 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Carbon\Carbon;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class RememberTest extends TestCase
-{
-    use Helpers;
+test('remember', function () {
+    $function = function () {
+        return 'myValue';
+    };
+    $store = new ArrayStore();
 
-    public function testRemember(): void
-    {
-        $function = function () {
-            return 'myValue';
-        };
-        $store = new ArrayStore();
+    $repo = new IndexRepository(
+        $store,
+        'myIndex',
+    );
+    Carbon::setTestNow();
+    
+    expect($repo->remember('myKey', 10, $function))->toBe('myValue');
+    expect($repo->keys())->toBe(['myKey']);
+});
 
-        $repo = new IndexRepository(
-            $store,
-            'myIndex',
-        );
-        Carbon::setTestNow();
-        $this->assertEquals(
-            'myValue',
-            $repo->remember('myKey', 10, $function)
-        );
+test('remember without ttl', function () {
+    $function = function () {
+        return 'myValue';
+    };
+    $store = new ArrayStore();
 
-        $this->assertEquals(['myKey'], $repo->keys());
-    }
-
-    public function testRememberWithoutTtl(): void
-    {
-        $function = function () {
-            return 'myValue';
-        };
-        $store = new ArrayStore();
-
-        $repo = new IndexRepository(
-            $store,
-            'myIndex'
-        );
-        $this->assertEquals('myValue', $repo->remember('myKey', null, $function));
-
-        $this->assertEquals(['myKey'], $repo->keys());
-    }
-}
+    $repo = new IndexRepository(
+        $store,
+        'myIndex'
+    );
+    
+    expect($repo->remember('myKey', null, $function))->toBe('myValue');
+    expect($repo->keys())->toBe(['myKey']);
+});

@@ -1,30 +1,21 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
-use PHPUnit\Framework\TestCase;
 use Illuminate\Cache\ArrayStore;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class FlushTest extends TestCase
-{
-    public function testShouldOnlyFlushItsOwnKeys()
-    {
-        $store = new ArraySTore();
-        $store->put('myKey', 'value', 0);
+test('should only flush its own keys', function () {
+    $store = new ArrayStore();
+    $store->put('myKey', 'value', 0);
 
-        $repo = new IndexRepository($store, 'myIndex');
+    $repo = new IndexRepository($store, 'myIndex');
 
-        $repo->put('myIndexedKey', 'myIndexedValue');
+    $repo->put('myIndexedKey', 'myIndexedValue');
 
-        $this->assertEquals('myIndexedValue', $store->get($repo->getPrefix() . 'myIndexedKey'));
+    expect($store->get($repo->getPrefix() . 'myIndexedKey'))->toBe('myIndexedValue');
 
-        $repo->flush();
+    $repo->flush();
 
-        $this->assertEquals('value', $store->get('myKey'));
-
-        $this->assertNull($store->get($repo->getPrefix() . 'myIndexedKey'));
-
-        $this->assertEquals([], $repo->keys());
-    }
-}
+    expect($store->get('myKey'))->toBe('value');
+    expect($store->get($repo->getPrefix() . 'myIndexedKey'))->toBeNull();
+    expect($repo->keys())->toBe([]);
+});

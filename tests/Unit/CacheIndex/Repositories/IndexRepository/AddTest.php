@@ -1,83 +1,59 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Carbon\Carbon;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 
-class AddTest extends TestCase
-{
-    use Helpers;
+test('add', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testAdd(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    $repo->add('myKey', 'myValue');
 
-        $repo->add('myKey', 'myValue');
+    expect($repo->keys())->toBe(['myKey']);
+    $this->assertStoreHas($repo, 'myKey', 'myValue');
+});
 
+test('add again', function () {
+    Carbon::setTestNow('2024-01-01 00:00:00');
 
-        $this->assertEquals(
-            [
-                'myKey'
-            ],
-            $repo->keys()
-        );
+    $mock = new ArrayStore();
 
-        $this->assertStoreHas($repo, 'myKey', 'myValue');
-    }
+    $repo = new IndexRepository(
+        $mock,
+        'myIndex',
+        'array'
+    );
 
-    public function testAddAgain(): void
-    {
-        Carbon::setTestNow('2024-01-01 00:00:00');
+    Carbon::setTestNow(now());
+    $repo->add('myKey', 'myValue', now()->addSeconds(10));
 
-        $mock = new ArrayStore();
+    $this->assertTtl($repo, 'myKey', 10);
 
-        $repo = new IndexRepository(
-            $mock,
-            'myIndex',
-            'array'
-        );
+    $repo->add('myKey', 'myValue', now()->addSeconds(20));
 
-        Carbon::setTestNow(now());
-        $repo->add('myKey', 'myValue', now()->addSeconds(10));
+    $this->assertTtl($repo, 'myKey', 10);
 
-        $this->assertTtl($repo, 'myKey', 10);
+    expect($repo->keys())->toBe(['myKey']);
+});
 
-        $repo->add('myKey', 'myValue', now()->addSeconds(20));
+test('add with add method on store', function () {
+    $store = new class extends ArrayStore {
+        public function add(string $key, mixed $value, $ttl)
+        {
+            return true;
+        }
+    };
 
-        $this->assertTtl($repo, 'myKey', 10);
+    $mock = $this->mock($store::class)->makePartial();
+    $mock->expects('add')->andReturnTrue();
 
-
-        $this->assertEquals(
-            [
-                'myKey'
-            ],
-            $repo->keys()
-        );
-    }
-
-    public function testAddWithAddMethodOnStore(): void
-    {
-        $store = new class extends ArrayStore {
-            public function add(string $key, mixed $value, $ttl)
-            {
-                return true;
-            }
-        };
-
-        $mock = $this->mock($store::class)->makePartial();
-        $mock->expects('add')->andReturnTrue();
-
-        $repo = new IndexRepository(
-            $mock,
-            'myIndex',
-            'array'
-        );
-        $repo->add('myKey', 'myValue', 10);
-    }
-}
+    $repo = new IndexRepository(
+        $mock,
+        'myIndex',
+        'array'
+    );
+    $repo->add('myKey', 'myValue', 10);
+});

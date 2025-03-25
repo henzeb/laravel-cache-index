@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [ '8.1','8.2', '8.3' ]
+        php: [ '8.1', '8.4' ]
         stability: [ prefer-lowest, prefer-stable ]
 
     steps:
@@ -58,7 +58,7 @@ jobs:
           command: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --quiet
 
       - name: Execute PHPUnit
-        run: vendor/bin/phpunit --coverage-clover=coverage.xml
+        run: vendor/bin/pest --coverage-clover=coverage.xml
 
       - name: Upload coverage to codeclimate
         uses: paambaati/codeclimate-action@v3.1.1

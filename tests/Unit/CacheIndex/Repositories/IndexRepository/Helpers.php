@@ -51,7 +51,7 @@ trait Helpers
         );
     }
 
-    public function assertTtl(IndexRepository $repo, string $key, int $ttl = null): void
+    public function assertTtl(IndexRepository $repo, string $key, ?int $ttl = null): void
     {
         $key = $this->getItemKey($repo, $key);
         /**

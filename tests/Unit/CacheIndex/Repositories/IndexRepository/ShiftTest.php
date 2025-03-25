@@ -1,42 +1,27 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 
-class ShiftTest extends TestCase
-{
-    use Helpers;
+test('empty shift', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testEmptyShift(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    expect($repo->shift())->toBeNull();
+});
 
-        $this->assertEquals(null, $repo->shift());
-    }
+test('shift', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testShift(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    $repo->add('myKey1', 'myValue1');
+    $repo->add('myKey2', 'myValue2');
 
-        $repo->add('myKey1', 'myValue1');
-        $repo->add('myKey2', 'myValue2');
-
-        $this->assertEquals(['myKey1', 'myKey2'], $repo->keys());
-
-        $this->assertEquals('myValue1', $repo->shift());
-
-        $this->assertEquals(
-            ['myKey2'],
-            $repo->keys()
-        );
-    }
-}
+    expect($repo->keys())->toBe(['myKey1', 'myKey2']);
+    expect($repo->shift())->toBe('myValue1');
+    expect($repo->keys())->toBe(['myKey2']);
+});

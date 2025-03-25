@@ -1,27 +1,18 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class ForeverTest extends TestCase
-{
-    use Helpers;
+test('forever', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex'
+    );
 
-    public function testForever(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex'
-        );
+    $repo->forever('myKey', 'myValue');
 
-        $repo->forever('myKey', 'myValue');
+    expect($repo->keys())->toBe(['myKey']);
 
-        $this->assertEquals(['myKey'], $repo->keys());
-
-        $this->assertStoreHas($repo, 'myKey', 'myValue');
-        $this->assertTtl($repo, 'myKey');
-    }
-}
+    $this->assertStoreHas($repo, 'myKey', 'myValue');
+    $this->assertTtl($repo, 'myKey');
+});

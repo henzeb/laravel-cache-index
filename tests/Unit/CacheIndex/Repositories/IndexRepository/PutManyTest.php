@@ -1,98 +1,71 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Carbon\Carbon;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-use function now;
+test('put', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-class PutManyTest extends TestCase
-{
-    use Helpers;
+    $repo->putMany(
+        [
+            'myKey' => 'myValue',
+            'myKey2' => 'myValue2'
+        ]
+    );
 
-    public function testPut(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    expect($repo->keys())->toBe([
+        'myKey',
+        'myKey2',
+    ]);
+});
 
-        $repo->putMany(
-            [
-                'myKey' => 'myValue',
-                'myKey2' => 'myValue2'
-            ]
-        );
+test('put expiration', function () {
+    Carbon::setTestNow();
 
-        $this->assertEquals(
-            [
-                'myKey',
-                'myKey2',
-            ],
-            $repo->keys()
-        );
-    }
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testPutExpiration(): void
-    {
-        Carbon::setTestNow();
+    $repo->putMany(
+        [
+            'myKey' => 'myValue',
+            'myKey2' => 'myValue2'
+        ],
+        now()->addSeconds(10)
+    );
 
+    $repo->putMany(
+        [
+            'myKey' => 'myValue',
+            'myKey3' => 'myValue3'
+        ],
+        now()->addSeconds(20)
+    );
 
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    expect($this->getRawIndex($repo))->toBe([
+        'myKey',
+        'myKey2',
+        'myKey3',
+    ]);
+});
 
-        $repo->putMany(
-            [
-                'myKey' => 'myValue',
-                'myKey2' => 'myValue2'
-            ],
-            now()->addSeconds(10)
-        );
+test('set multiple calls put many', function () {
+    $repo = $this->mock(IndexRepository::class)
+        ->makePartial();
 
-        $repo->putMany(
-            [
-                'myKey' => 'myValue',
-                'myKey3' => 'myValue3'
-            ],
-            now()->addSeconds(20)
-        );
+    $repo->expects('putMany')
+        ->with(['myKey' => 'myValue'], null)
+        ->andReturn(true);
 
-        $this->assertEquals(
-            [
-                'myKey',
-                'myKey2',
-                'myKey3',
-            ],
-            $this->getRawIndex($repo)
-        );
-    }
+    $repo->expects('putMany')
+        ->with(['myKey' => 'myValue'], 10)
+        ->andReturn(true);
 
-    public function testSetMultipleCallsPutMany(): void
-    {
-        $repo = $this->mock(IndexRepository::class)
-            ->makePartial();
-
-        $repo->expects('putMany')
-            ->with(['myKey' => 'myValue'], null)
-            ->andReturn(true);
-
-        $repo->expects('putMany')
-            ->with(['myKey' => 'myValue'], 10)
-            ->andReturn(true);
-
-        $this->assertEquals(
-            true,
-            $repo->setMultiple(['myKey' => 'myValue'])
-        );
-
-        $this->assertEquals(
-            true,
-            $repo->setMultiple(['myKey' => 'myValue'], 10)
-        );
-    }
-}
+    expect($repo->setMultiple(['myKey' => 'myValue']))->toBeTrue();
+    expect($repo->setMultiple(['myKey' => 'myValue'], 10))->toBeTrue();
+});

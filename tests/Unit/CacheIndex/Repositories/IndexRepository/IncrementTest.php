@@ -1,38 +1,21 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class IncrementTest extends TestCase
-{
-    use Helpers;
+test('increment', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testIncrement(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    $repo->increment('myKey');
 
-        $repo->increment('myKey');
+    $this->assertStoreHas($repo, 'myKey', 1);
+    expect($repo->keys())->toBe(['myKey']);
 
-        $this->assertStoreHas($repo, 'myKey', 1);
+    $repo->increment('myKey', 2);
 
-        $this->assertEquals(
-            ['myKey'],
-            $repo->keys()
-        );
-
-        $repo->increment('myKey', 2);
-
-        $this->assertStoreHas($repo, 'myKey', 3);
-
-        $this->assertEquals(
-            ['myKey'],
-            $repo->keys()
-        );
-    }
-}
+    $this->assertStoreHas($repo, 'myKey', 3);
+    expect($repo->keys())->toBe(['myKey']);
+});

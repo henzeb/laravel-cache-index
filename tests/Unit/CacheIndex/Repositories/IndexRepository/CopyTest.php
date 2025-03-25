@@ -1,135 +1,84 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Carbon\Carbon;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Illuminate\Support\Facades\Cache;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class CopyTest extends TestCase
-{
-    use Helpers;
+test('expect copy', function () {
+    $store = new ArrayStore();
 
-    public function testExpectCopy(): void
-    {
-        $store = new ArrayStore();
+    $repo = new IndexRepository(
+        $store, 'myIndex'
+    );
 
-        $repo = new IndexRepository(
-            $store, 'myIndex'
-        );
+    $receivingRepo = new IndexRepository(
+        $store, 'myIndex2'
+    );
 
-        $receivingRepo = new IndexRepository(
-            $store, 'myIndex2'
-        );
+    $repo->add('myKey', 'myValue');
 
-        $repo->add('myKey', 'myValue');
+    $repo->copy('myKey', 'myIndex2');
 
-        $repo->copy('myKey', 'myIndex2');
+    expect($this->getRawIndex($repo))->toBe([
+        'myKey'
+    ]);
 
-        $this->assertEquals(
-            [
-                'myKey'
-            ],
-            $this->getRawIndex($repo)
-        );
+    expect($this->getRawIndex($receivingRepo))->toBe([
+        'myKey'
+    ]);
 
-        $this->assertEquals(
-            [
-                'myKey'
-            ],
-            $this->getRawIndex($receivingRepo)
-        );
+    expect($repo->get('myKey'))->toBe('myValue');
+    expect($receivingRepo->get('myKey'))->toBe('myValue');
+});
 
-        $this->assertEquals(
-            'myValue',
-            $repo->get('myKey')
-        );
+test('expect copy non existent', function () {
+    $store = new ArrayStore();
 
-        $this->assertEquals(
-            'myValue',
-            $receivingRepo->get('myKey')
-        );
-    }
+    $repo = new IndexRepository(
+        $store, 'myIndex'
+    );
 
-    public function testExpectCopyNonExistent(): void
-    {
-        $store = new ArrayStore();
+    $receivingRepo = new IndexRepository(
+        $store, 'myIndex2'
+    );
 
-        $repo = new IndexRepository(
-            $store, 'myIndex'
-        );
+    $repo->copy('myKey', 'myIndex2');
 
-        $receivingRepo = new IndexRepository(
-            $store, 'myIndex2'
-        );
+    expect($this->getRawIndex($repo))->toBe([]);
+    expect($this->getRawIndex($receivingRepo))->toBe([]);
+    expect($repo->get('myKey'))->toBeNull();
+    expect($receivingRepo->get('myKey'))->toBeNull();
+});
 
-        $repo->copy('myKey', 'myIndex2');
+test('expect copy with expiration', function () {
+    Carbon::setTestNow(Carbon::createFromTimestamp(0));
 
-        $this->assertEquals([], $this->getRawIndex($repo));
+    $store = new ArrayStore();
 
-        $this->assertEquals(
-            [],
-            $this->getRawIndex($receivingRepo)
-        );
+    $repo = new IndexRepository(
+        $store, 'myIndex'
+    );
 
-        $this->assertEquals(
-            null,
-            $repo->get('myKey')
-        );
+    $receivingRepo = new IndexRepository(
+        $store, 'myIndex2'
+    );
 
-        $this->assertEquals(
-            null,
-            $receivingRepo->get('myKey')
-        );
-    }
+    $repo->add('myKey', 'myValue', 10);
 
-    public function testExpectCopyWithExpiration(): void
-    {
-        Carbon::setTestNow(Carbon::createFromTimestamp(0));
+    $repo->copy('myKey', 'myIndex2', 20);
 
-        $store = new ArrayStore();
+    expect($this->getRawIndex($repo))->toBe([
+        'myKey'
+    ]);
 
-        $repo = new IndexRepository(
-            $store, 'myIndex'
-        );
+    expect($this->getRawIndex($receivingRepo))->toBe([
+        'myKey'
+    ]);
 
-        $receivingRepo = new IndexRepository(
-            $store, 'myIndex2'
-        );
+    expect($repo->get('myKey'))->toBe('myValue');
+    expect($receivingRepo->get('myKey'))->toBe('myValue');
 
-        $repo->add('myKey', 'myValue', 10);
-
-        $repo->copy('myKey', 'myIndex2', 20);
-
-        $this->assertEquals(
-            [
-                'myKey'
-            ],
-            $this->getRawIndex($repo)
-        );
-
-        $this->assertEquals(
-            [
-                'myKey'
-            ],
-            $this->getRawIndex($receivingRepo)
-        );
-
-        $this->assertEquals(
-            'myValue',
-            $repo->get('myKey')
-        );
-
-        $this->assertEquals(
-            'myValue',
-            $receivingRepo->get('myKey')
-        );
-
-        $this->assertTtl($repo, 'myKey', 10);
-
-        $this->assertTtl($receivingRepo, 'myKey', 20);
-
-    }
-}
+    $this->assertTtl($repo, 'myKey', 10);
+    $this->assertTtl($receivingRepo, 'myKey', 20);
+});

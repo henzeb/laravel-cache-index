@@ -1,42 +1,27 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 
-class PopTest extends TestCase
-{
-    use Helpers;
+test('empty pop', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testEmptyPop(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    expect($repo->pop())->toBeNull();
+});
 
-        $this->assertEquals(null, $repo->pop());
-    }
+test('pop', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testPop(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    $repo->add('myKey1', 'myValue1');
+    $repo->add('myKey2', 'myValue2');
 
-        $repo->add('myKey1', 'myValue1');
-        $repo->add('myKey2', 'myValue2');
-
-        $this->assertEquals(['myKey1', 'myKey2'], $repo->keys());
-
-        $this->assertEquals('myValue2', $repo->pop());
-
-        $this->assertEquals(
-            ['myKey1'],
-            $repo->keys()
-        );
-    }
-}
+    expect($repo->keys())->toBe(['myKey1', 'myKey2']);
+    expect($repo->pop())->toBe('myValue2');
+    expect($repo->keys())->toBe(['myKey1']);
+});

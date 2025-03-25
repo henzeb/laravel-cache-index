@@ -1,48 +1,32 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class ForgetTest extends TestCase
-{
-    use Helpers;
+test('forget', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testForget(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    $repo->add('myKey', 'myValue');
 
-        $repo->add('myKey', 'myValue');
+    expect($repo->keys())->toBe(['myKey']);
 
-        $this->assertEquals(['myKey'], $repo->keys());
+    $repo->forget('myKey');
 
-        $repo->forget('myKey');
+    expect($repo->keys())->toBe([]);
 
-        $this->assertEquals(
-            [],
-            $repo->keys()
-        );
+    $this->assertStoreHasNot($repo, 'myKey');
+});
 
-        $this->assertStoreHasNot($repo, 'myKey');
-    }
+test('delete calls forget', function () {
+    $repo = $this->mock(IndexRepository::class)
+        ->makePartial();
 
-    public function testDeleteCallsForget(): void
-    {
-        $repo = $this->mock(IndexRepository::class)
-            ->makePartial();
+    $repo->expects('forget')
+        ->with('myKey')
+        ->andReturn(true);
 
-        $repo->expects('forget')
-            ->with('myKey')
-            ->andReturn(true);
-
-        $this->assertEquals(
-            true,
-            $repo->delete('myKey', 'myValue')
-        );
-    }
-}
+    expect($repo->delete('myKey', 'myValue'))->toBeTrue();
+});

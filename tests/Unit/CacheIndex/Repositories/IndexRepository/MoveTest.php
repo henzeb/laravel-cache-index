@@ -1,125 +1,81 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Carbon\Carbon;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 
-class MoveTest extends TestCase
-{
-    use Helpers;
+test('expect move', function () {
+    $store = new ArrayStore();
 
-    public function testExpectMove(): void
-    {
-        $store = new ArrayStore();
+    $repo = new IndexRepository(
+        $store, 'myIndex'
+    );
 
-        $repo = new IndexRepository(
-            $store, 'myIndex'
-        );
+    $receivingRepo = new IndexRepository(
+        $store, 'myIndex2'
+    );
 
-        $receivingRepo = new IndexRepository(
-            $store, 'myIndex2'
-        );
+    $repo->add('myKey', 'myValue');
 
-        $repo->add('myKey', 'myValue');
+    $repo->move('myKey', 'myIndex2');
 
-        $repo->move('myKey', 'myIndex2');
+    expect($this->getRawIndex($repo))->toBe([]);
+    expect($this->getRawIndex($receivingRepo))->toBe([
+        'myKey'
+    ]);
 
-        $this->assertEquals(
-            [
-            ],
-            $this->getRawIndex($repo)
-        );
+    expect($repo->get('myKey'))->toBeNull();
+    expect($receivingRepo->get('myKey'))->toBe('myValue');
 
-        $this->assertEquals(
-            [
-                'myKey'
-            ],
-            $this->getRawIndex($receivingRepo)
-        );
+    $this->assertStoreHasNot($repo, 'myKey');
+    $this->assertStoreHas($receivingRepo, 'myKey', 'myValue');
+});
 
-        $this->assertEquals(
-            null,
-            $repo->get('myKey')
-        );
+test('expect move non existent', function () {
+    $store = new ArrayStore();
 
-        $this->assertEquals(
-            'myValue',
-            $receivingRepo->get('myKey')
-        );
+    $repo = new IndexRepository(
+        $store, 'myIndex'
+    );
 
-        $this->assertStoreHasNot($repo, 'myKey');
+    $receivingRepo = new IndexRepository(
+        $store, 'myIndex2'
+    );
 
-        $this->assertStoreHas($receivingRepo, 'myKey', 'myValue');
-    }
+    $repo->move('myKey', 'myIndex2');
 
-    public function testExpectMoveNonExistent(): void
-    {
-        $store = new ArrayStore();
+    expect($this->getRawIndex($repo))->toBe([]);
+    expect($this->getRawIndex($receivingRepo))->toBe([]);
 
-        $repo = new IndexRepository(
-            $store, 'myIndex'
-        );
+    expect($repo->get('myKey'))->toBeNull();
+    expect($receivingRepo->get('myKey'))->toBeNull();
 
-        $receivingRepo = new IndexRepository(
-            $store, 'myIndex2'
-        );
+    $this->assertStoreHasNot($repo, 'myKey');
+    $this->assertStoreHasNot($receivingRepo, 'myKey');
+});
 
-        $repo->move('myKey', 'myIndex2');
+test('expect moves with expiration', function () {
+    Carbon::setTestNow('2024-01-01 00:00:00');
 
-        $this->assertEquals([], $this->getRawIndex($repo));
+    $store = new ArrayStore();
 
-        $this->assertEquals(
-            [],
-            $this->getRawIndex($receivingRepo)
-        );
+    $repo = new IndexRepository(
+        $store, 'myIndex'
+    );
 
-        $this->assertEquals(
-            null,
-            $repo->get('myKey')
-        );
+    $receivingRepo = new IndexRepository(
+        $store, 'myIndex2'
+    );
 
-        $this->assertEquals(
-            null,
-            $receivingRepo->get('myKey')
-        );
+    $repo->add('myKey', 'myValue', 10);
 
-        $this->assertStoreHasNot($repo, 'myKey');
+    $repo->move('myKey', 'myIndex2', 10);
 
-        $this->assertStoreHasNot($receivingRepo, 'myKey');
-    }
+    expect($this->getRawIndex($repo))->toBe([]);
+    expect($this->getRawIndex($receivingRepo))->toBe([
+        'myKey',
+    ]);
 
-    public function testExpectMovesWithExpiration(): void
-    {
-        Carbon::setTestNow('2024-01-01 00:00:00');
-
-        $store = new ArrayStore();
-
-        $repo = new IndexRepository(
-            $store, 'myIndex'
-        );
-
-        $receivingRepo = new IndexRepository(
-            $store, 'myIndex2'
-        );
-
-        $repo->add('myKey', 'myValue', 10);
-
-        $repo->move('myKey', 'myIndex2', 10);
-
-        $this->assertEquals([], $this->getRawIndex($repo));
-
-        $this->assertEquals(
-            [
-                'myKey',
-            ],
-            $this->getRawIndex($receivingRepo)
-        );
-
-        $this->assertStoreHas($receivingRepo, 'myKey', 'myValue');
-
-        $this->assertTtl($receivingRepo, 'myKey', 10);
-    }
-}
+    $this->assertStoreHas($receivingRepo, 'myKey', 'myValue');
+    $this->assertTtl($receivingRepo, 'myKey', 10);
+});

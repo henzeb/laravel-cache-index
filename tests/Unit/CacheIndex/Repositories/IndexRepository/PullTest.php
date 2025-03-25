@@ -1,32 +1,19 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
-use Illuminate\Contracts\Cache\Store;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class PullTest extends TestCase
-{
-    use Helpers;
+test('pull', function () {
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex',
+    );
 
-    public function testPull(): void
-    {
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex',
-        );
+    $repo->add('myKey', 'myValue');
 
-        $repo->add('myKey', 'myValue');
+    expect($repo->keys())->toBe(['myKey']);
 
-        $this->assertEquals(['myKey'], $repo->keys());
+    $repo->pull('myKey');
 
-        $repo->pull('myKey');
-
-        $this->assertEquals(
-            [],
-            $repo->keys()
-        );
-    }
-}
+    expect($repo->keys())->toBe([]);
+});

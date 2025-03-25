@@ -1,21 +1,12 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class SupportsTagsTest extends TestCase
-{
-    public function testExpectsNotToSupportTags(): void
-    {
-        $this->assertFalse(
-            (
-            new IndexRepository(
-                new ArrayStore(), 'myIndex'
-            )
-            )->supportsTags()
-        );
-    }
-}
+test('expects not to support tags', function () {
+    expect(
+        (new IndexRepository(
+            new ArrayStore(), 'myIndex'
+        ))->supportsTags()
+    )->toBeFalse();
+});

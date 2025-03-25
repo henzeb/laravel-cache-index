@@ -1,80 +1,54 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
 use Carbon\Carbon;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 
-class PutTest extends TestCase
-{
-    use Helpers;
+test('put', function () {
+    $store = new ArrayStore();
+    $repo = new IndexRepository(
+        $store,
+        'myIndex',
+    );
 
-    public function testPut(): void
-    {
-        $store = new ArrayStore();
-        $repo = new IndexRepository(
-            $store,
-            'myIndex',
-        );
+    $repo->put('myKey', 'myValue');
 
-        $repo->put('myKey', 'myValue');
+    expect($repo->keys())->toBe([
+        'myKey'
+    ]);
 
-        $this->assertEquals(
-            [
-                'myKey'
-            ],
-            $repo->keys()
-        );
+    expect($store->get($repo->getPrefix() . 'myKey'))->toBe('myValue');
+});
 
-        $this->assertEquals(
-            'myValue',
-            $store->get($repo->getPrefix() . 'myKey')
-        );
-    }
+test('put expiration overwrite', function () {
+    Carbon::setTestNow(now());
 
-    public function testPutExpirationOverwrite(): void
-    {
-        Carbon::setTestNow(now());
+    $store = new ArrayStore();
+    $repo = new IndexRepository(
+        $store,
+        'myIndex',
+    );
 
+    $repo->put('myKey', 'myValue', 10);
+    $repo->put('myKey', 'myValue', 20);
 
-        $store = new ArrayStore();
-        $repo = new IndexRepository(
-            $store,
-            'myIndex',
-        );
+    Carbon::setTestNow(now()->addSeconds(11));
 
-        $repo->put('myKey', 'myValue', 10);
+    expect($repo->get('myKey'))->toBe('myValue');
+});
 
-        $repo->put('myKey', 'myValue', 20);
+test('set calls put', function () {
+    $repo = $this->mock(IndexRepository::class)
+        ->makePartial();
 
-        Carbon::setTestNow(now()->addSeconds(11));
+    $repo->expects('put')
+        ->with('myKey', 'myValue', null)
+        ->andReturn(true);
 
-        $this->assertEquals('myValue', $repo->get('myKey'));
-    }
+    $repo->expects('put')
+        ->with('myKey', 'myValue', 10)
+        ->andReturn(true);
 
-    public function testSetCallsPut(): void
-    {
-        $repo = $this->mock(IndexRepository::class)
-            ->makePartial();
-
-        $repo->expects('put')
-            ->with('myKey', 'myValue', null)
-            ->andReturn(true);
-
-        $repo->expects('put')
-            ->with('myKey', 'myValue', 10)
-            ->andReturn(true);
-
-        $this->assertEquals(
-            true,
-            $repo->set('myKey', 'myValue')
-        );
-
-        $this->assertEquals(
-            true,
-            $repo->set('myKey', 'myValue', 10)
-        );
-    }
-}
+    expect($repo->set('myKey', 'myValue'))->toBeTrue();
+    expect($repo->set('myKey', 'myValue', 10))->toBeTrue();
+});

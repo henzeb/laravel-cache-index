@@ -1,48 +1,30 @@
 <?php
 
-namespace Henzeb\CacheIndex\Tests\Unit\CacheIndex\Repositories\IndexRepository;
-
-use Mockery;
 use Illuminate\Cache\ArrayStore;
-use Orchestra\Testbench\TestCase;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
+use Mockery\MockInterface;
 
-class RememberForeverTest extends TestCase
-{
-    use Helpers;
+test('remember forever', function () {
+    $function = function () {
+        return 'myValue';
+    };
 
-    public function testRememberForever(): void
-    {
-        $function = function () {
-            return 'myValue';
-        };
+    $repo = new IndexRepository(
+        new ArrayStore(),
+        'myIndex'
+    );
 
+    expect($repo->rememberForever('myKey', $function))->toBe('myValue');
+    expect($repo->keys())->toBe(['myKey']);
+});
 
-        $repo = new IndexRepository(
-            new ArrayStore(),
-            'myIndex'
-        );
+test('sear calls remember forever', function () {
+    $callback = fn() => 'test3';
 
-        $this->assertEquals(
-            'myValue',
-            $repo->rememberForever('myKey', $function)
-        );
+    $mock = Mockery::mock(IndexRepository::class)->makePartial();
+    $mock->expects('rememberForever')
+        ->with('string', $callback)
+        ->andReturns('test3');
 
-        $this->assertEquals(['myKey'], $repo->keys());
-    }
-
-    public function testSearCallsRememberForever(): void
-    {
-        $callback = fn() => 'test3';
-
-        $mock = Mockery::mock(IndexRepository::class)->makePartial();
-        $mock->expects('rememberForever')
-            ->with('string', $callback)
-            ->andReturns('test3');
-
-        $this->assertEquals(
-            'test3',
-            $mock->sear('string', $callback)
-        );
-    }
-}
+    expect($mock->sear('string', $callback))->toBe('test3');
+});
