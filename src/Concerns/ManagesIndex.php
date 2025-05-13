@@ -28,7 +28,7 @@ trait ManagesIndex
         return $this->getIndex();
     }
 
-    private function getIndex(string $targetIndex = null): array
+    private function getIndex(?string $targetIndex = null): array
     {
         /**
          * @var array $index
@@ -43,7 +43,7 @@ trait ManagesIndex
         return array_values($index);
     }
 
-    private function indexName(string $name = null): string
+    private function indexName(?string $name = null): string
     {
         return IndexRepository::INDEX_PREFIX . ($name ?? $this->index);
     }
@@ -56,7 +56,7 @@ trait ManagesIndex
         return (bool)$success;
     }
 
-    private function addToIndex(string|array $keys, string $targetIndex = null): void
+    private function addToIndex(string|array $keys, ?string $targetIndex = null): void
     {
         $index = $this->getIndex($targetIndex);
 
@@ -207,7 +207,7 @@ trait ManagesIndex
         return $this->keyPrefix(key: $key);
     }
 
-    private function keyPrefix(string $index = null, string $key = null): string
+    private function keyPrefix(?string $index = null, ?string $key = null): string
     {
         return IndexRepository::KEY_PREFIX . ($index ?? $this->index) . '_' . $key;
     }
