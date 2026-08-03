@@ -4,6 +4,14 @@ use Carbon\Carbon;
 use Henzeb\CacheIndex\Repositories\IndexRepository;
 use Illuminate\Cache\ArrayStore;
 
+class AddTestStoreWithAddMethod extends ArrayStore
+{
+    public function add(string $key, mixed $value, $ttl): bool
+    {
+        return true;
+    }
+}
+
 test('add', function () {
     $repo = new IndexRepository(
         new ArrayStore(),
@@ -40,14 +48,7 @@ test('add again', function () {
 });
 
 test('add with add method on store', function () {
-    $store = new class extends ArrayStore {
-        public function add(string $key, mixed $value, $ttl)
-        {
-            return true;
-        }
-    };
-
-    $mock = $this->mock($store::class)->makePartial();
+    $mock = $this->mock(AddTestStoreWithAddMethod::class)->makePartial();
     $mock->expects('add')->andReturnTrue();
 
     $repo = new IndexRepository(
