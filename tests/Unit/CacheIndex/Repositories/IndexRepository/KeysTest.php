@@ -39,6 +39,7 @@ test('keys', function () {
 
     expect($repo->keys())->toBe([
         'myKey',
+        'myExpiringKey',
     ]);
 
     expect($arrayStore->get('indexed_myIndex_myExpiringKey'))->toBeNull();

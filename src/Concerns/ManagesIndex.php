@@ -33,14 +33,7 @@ trait ManagesIndex
         /**
          * @var array $index
          */
-        $index = $this->getStore()->get($this->indexName($targetIndex)) ?? [];
-
-        foreach ($index as $key => $itemKey) {
-            if (!$this->has($itemKey)) {
-                unset($index[$key]);
-            }
-        }
-        return array_values($index);
+        return $this->getStore()->get($this->indexName($targetIndex)) ?? [];
     }
 
     private function indexName(?string $name = null): string
@@ -165,8 +158,16 @@ trait ManagesIndex
 
     public function flush(): bool
     {
-        return $this->deleteMultiple($this->keys())
-            && $this->getStore()->forget($this->indexName());
+        $keys = $this->keys();
+
+        if (empty($keys)) {
+            return $this->getStore()->forget($this->indexName());
+        }
+
+        $deleted = $this->deleteMultiple($keys);
+        $forgotten = $this->getStore()->forget($this->indexName());
+
+        return $deleted || $forgotten;
     }
 
     private function prefixKeys(array $keys): array
@@ -222,17 +223,22 @@ trait ManagesIndex
         return $key;
     }
 
-    private function deleteFromIndex(string|array|null $key): void
+    private function deleteFromIndex(string|array|null $keys): void
     {
-        if (null === $key) {
+        if (null === $keys) {
             return;
         }
 
         $index = $this->getIndex();
 
-        foreach (is_array($key) ? $key : [$key] as $key) {
-            unset($index[$key]);
+        foreach (is_array($keys) ? $keys : [$keys] as $key) {
+            $key = $this->unprefixedItemKey($key);
+            if (($idx = array_search($key, $index, true)) !== false) {
+                unset($index[$idx]);
+            }
         }
+
+        $index = array_values($index);
 
         if (empty($index)) {
             $this->getStore()->forget($this->indexName());
