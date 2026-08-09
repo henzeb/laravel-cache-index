@@ -101,13 +101,18 @@ class IndexRepository extends Repository
 
     public function forget($key): bool
     {
-        return tap(
-            parent::forget($key),
-            function ($forgotten) use ($key) {
-                if ($forgotten) {
-                    $this->deleteFromIndex($key);
-                }
+        $keys = is_array($key) ? $key : [$key];
+        $allForgotten = true;
+
+        foreach ($keys as $k) {
+            $forgotten = parent::forget($k);
+            if ($forgotten) {
+                $this->deleteFromIndex($k);
+            } else {
+                $allForgotten = false;
             }
-        );
+        }
+
+        return $allForgotten;
     }
 }
